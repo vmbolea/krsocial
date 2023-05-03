@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
+        integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI="
+        crossorigin=""/>
+        <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
+     integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM="
+     crossorigin=""></script>
+
+<script type="text/javascript" src="R/data/g_data.geojson"></script>
+<style>
+  #map {
+    position: relative;
+    z-index: 0;
+    height: 100vh;
+    width: 100%;
+  }
+  .panel {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+
+  .info {
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    font-size: 16px;
+    padding: 20px;
+    line-height: 1.5;
+    width: 200px;
+    margin-bottom: 5px;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+  }
+
+  .info h4 {
+    margin-top: 0;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+  }
+
+  .info b {
+    font-weight: bold;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+  }
+
+ 
+.radio-buttons {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
+  left: 0px;
+  border: 1px solid #ccc;
+  line-height: 1.5;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  font-size: 16px;
+  padding: 20px;
+  line-height: 1.5;
+  width: 200px;
+  margin-bottom: 5px;
+}
+
+.radio-buttons-title {
+  font-weight: bold;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  font-size: 16px;
+  text-decoration: underline;
+  margin-bottom: 1px;
+  padding: 10px;
+
+}
+
+.radio-buttons input[type="radio"] {
+  display: none;
+}
+
+.radio-buttons label {
+  display: inline-block;
+  position: relative;
+  padding-left: 28px;
+  margin-right: 12px;
+  cursor: pointer;
+  font-size: 16px;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+.radio-buttons label:before {
+  content: "";
+  display: inline-block;
+  position: absolute;
+  left: 0;
+  top: 2px;
+  width: 10px;
+  height: 10px;
+  border: 2px solid black;
+  border-radius: 50%;
+}
+
+.radio-buttons input[type="radio"]:checked + label:before {
+  content: "";
+  display: inline-block;
+  position: absolute;
+  left: 2px;
+  top: 4px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: black;
+  color: white;
+  text-align: center;
+  line-height: 16px;
+}
+
+.radio-buttons input[type="radio"]:checked + label:before:after {
+  content: "";
+  display: inline-block;
+  position: absolute;
+  left: 2px;
+  top: 4px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: white;
+}
+.legend {
+    line-height: 25px;
+    color: #555;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+
+}
+.legend i {
+    width: 100px;
+    height: 25px;
+    float: left;
+    margin-right: 20px;
+    opacity: 0.7;
+}
+  body {
+    margin: 0;
+    overflow: hidden;
+  }
+
+</style>
+<div id="map"></div>
+<div class="panel">
+  <div class="info">
+    <h4>RATIO DE CERDOS/PERSONAS</h4>
+    <p><b>Fuentes:</b> <a href="https://www.aragon.es/-/estadisticas-ganaderas">Ganado</a> y <a href="https://opendata.aragon.es/datos/catalogo/dataset/cifras-de-poblacion-revision-del-padron-municipal">Personas</a></p>
+    <p><b>Autor:</b> <a href="https://www.aragon.es/-/estadisticas-ganaderas">vmbolea</a> </p>
+  </div>
+  <div class="radio-buttons">
+  <div class="radio-buttons-title">AÑO</div>
+  
+  <input type="radio" id="2013" name="year" value="2013">
+  <label for="2013">2013</label>
+  
+  <input type="radio" id="2014" name="year" value="2014">
+  <label for="2014">2014</label>
+
+  <input type="radio" id="2015" name="year" value="2015">
+  <label for="2015">2015</label>
+  
+  <input type="radio" id="2016" name="year" value="2016">
+  <label for="2016">2016</label>
+  
+  <input type="radio" id="2017" name="year" value="2017">
+  <label for="2017">2017</label>
+  
+  <input type="radio" id="2018" name="year" value="2018">
+  <label for="2018">2018</label>
+  
+  <input type="radio" id="2019" name="year" value="2019">
+  <label for="2019">2019</label>
+  
+  <input type="radio" id="2020" name="year" value="2020">
+  <label for="2020">2020</label>
+  
+  <input type="radio" id="2021" name="year" value="2021">
+  <label for="2021">2021</label>
+  
+  <input type="radio" id="2022" name="year" value="2022" checked>
+  <label for="2022">2022</label>
+  <div class="radio-buttons-title">GANADO</div>
+
+  <input type="radio" id="p" name="lv" value="p" checked>
+  <label for="p">Porcino</label>
+
+  <input type="radio" id="b" name="lv" value="b">
+  <label for="b">Bovino</label>
+
+  <input type="radio" id="o" name="lv" value="o">
+  <label for="o">Ovino-Caprino</label>
+
+  <div class="radio-buttons-title">VARIABLES</div>
+
+  <input type="radio" id="n" name="var" value="n" checked>
+  <label for="n">Número</label>
+
+  <input type="radio" id="d" name="var" value="d">
+  <label for="d">Densidad</label>
+
+  <input type="radio" id="r" name="var" value="r">
+  <label for="r">Ratio</label>
+
+</div>
+</div>
+
+
+
+
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js" integrity="sha384-UG8ao2jwOWB7/oDdObZc6ItJmwUkR/PfMyt9Qs5AwX7PsnYn1CRKCTWyncPTWvaS" crossorigin="anonymous"></script>
+        <script>
+
+
+
+
+
+
+const map = L.map('map',{
+  minZoom: 8
+
+}).setView([41.505, -1], 6);
+
+map.zoomControl.remove(); // Remove zoom controls
+// Set the maximum boundaries of the map to prevent panning outside of these coordinates
+var southWest = L.latLng(36.505, 2);
+var northEast = L.latLng(44.505, -4);
+var bounds = L.latLngBounds(southWest, northEast);
+map.setMaxBounds(bounds);
+
+
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+	attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+	subdomains: 'abcd',
+	maxZoom: 20
+}).addTo(map)
+
+
+    // definición de la imagen escala  
+    L.control.scale({ // clase leaflet de escala
+              position: 'bottomleft', // posición de la escala
+              imperial: false}) // escala métrica
+            .addTo(map); // añadir al mapa
+
+
+var currentYear = "2022"; // Valor inicial para el año
+var currentLv = "p"; // Valor inicial para el tipo de ganado
+var currentVar = "n";
+
+
+function getColor1(ratio, currentLv) {
+  
+  if (currentLv === "p") {
+    return ratio > 80  ? '#7a0177':
+           ratio > 50  ? '#ae017e':
+           ratio > 20  ? '#dd3497':
+           ratio > 10  ? '#f768a1':
+           ratio > 5   ? '#fa9fb5':
+           ratio > 1   ? '#fcc5c0':
+           ratio > 0.5 ? '#fde0dd':
+                         '#fff7f3';
+  } else if (currentLv === "o") {
+    return ratio > 50  ? '#005a32':
+           ratio > 20  ? '#238443':
+           ratio > 10  ? '#41ab5d':
+           ratio > 5   ? '#78c679':
+           ratio > 1   ? '#addd8e':
+           ratio > 0.5 ? '#d9f0a3':
+                         '#ffffe5';
+  } else if (currentLv === "b") {
+    return ratio > 20  ? '#8c2d04':
+           ratio > 10  ? '#cc4c02':
+           ratio > 5   ? '#ec7014':
+           ratio > 2   ? '#fe9929':
+           ratio > 1   ? '#fec44f':
+           ratio > 0.5 ? '#fee391':
+                         '#ffffd4';
+  }
+}
+
+
+
+
+
+
+
+function getStyle1(feature, ratio, currentLv) {
+ 
+  var fillColor;
+ 
+    fillColor = getColor1(ratio, currentLv);
+  
+  return {
+    fillColor: fillColor,
+    weight: 0.8,
+    opacity: 0.8,
+    color: '#252525',
+    dashArray: '4',
+    fillOpacity: 0.8
+  };
+}
+
+function highlightFeature(e) {
+  var layer = e.target;
+  
+  layer.setStyle({
+    weight: 4,
+    color: '#FFFF00',
+    dashArray: '4',
+    fillOpacity: 0.7
+  });
+  layer.bringToFront();
+  
+  layer.on('mouseout', function() {
+    todas.resetStyle(layer);
+    info.update(null, currentLv, currentYear);
+  });
+  
+  info.update(layer.feature.properties, currentLv, currentYear);
+}
+
+function resetHighlight(e) {
+  e.target.setStyle({
+    weight: 0.8,
+    opacity: 0.8,
+    color: '#252525',
+    dashArray: '4',
+    fillOpacity: 0.8
+  });
+  todas.resetStyle();
+  todas.setStyle({
+    fillColor: getColor1(dividendo/divisor, currentLv),
+    weight: 0.8,
+    opacity: 0.8,
+    color: '#252525',
+    dashArray: '4',
+    fillOpacity: 0.8
+  });
+  info.update(null, currentLv, currentYear);
+}
+
+function onEachFeature(feature, layer) {
+  layer.on('mouseover', function(e) {
+  highlightFeature(e);
+  var properties = e.target.feature.properties;
+    var dividendo = properties[`${currentLv}_${currentYear}`];
+    var divisor = properties[`h_${currentYear}`];
+    info.update({
+      nombre: properties.d_muni_ine,
+      dividendo: dividendo,
+      divisor: divisor
+    }, currentYear, currentLv, currentVar); // Pass the selectedYear parameter to info.update
+
+    
+
+  }).on('mouseout', function(e) {
+  resetHighlight(e);
+});
+
+}
+
+
+var info = L.control();
+
+info.onAdd = function (map) {
+    this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
+    this.update();
+    return this._div;
+};
+info.update = function (props, currentYear, currentLv, currentVar) {
+  var currentLvName;
+  var divisorName;
+
+  switch (currentLv) {
+    case "p":
+      currentLvName = "Porcinos";
+      break;
+    case "o":
+      currentLvName = "Ovinos-Caprinos";
+      break;
+    case "b":
+      currentLvName = "Bovinos";
+      break;
+    default:
+      currentLvName = "";
+      break;
+  }
+
+  switch (currentVar) {
+    case "n":
+      divisorName = "";
+      break;
+    case "d":
+      divisorName = " / km^2";
+      break;
+    case "r":
+      divisorName = " / Persona";
+      break;
+    default:
+      divisorName = "";
+      break;
+  }
+
+  this._div.innerHTML = ' Año seleccionado:  <b>' + currentYear + '</b><br />' +  (props ?
+    ' Comarca: <b>' + props.nombre + '</b><br />' + currentLvName + divisorName + ': <b>' + Math.round(props.dividendo/props.divisor *100)/100 + '</b>'
+    : 'Desplaza sobre una comarca');
+};
+
+info.addTo(map); // añade el control al mapa antes de llamar a la función update
+
+
+
+       // definición de la variable que contendrá la clase geojson                  
+       var todas;
+        // se le añade una clase geojson de leaflet
+        todas = L.geoJSON(null, {
+                            style: function(feature) {
+                                return getStyle1(feature, feature.properties[`${currentLv}_${currentYear}`]/feature.properties[`h_${currentYear}`]);
+                                                      },
+      onEachFeature: function(feature, layer) {
+        layer.on({
+    mouseover: highlightFeature,
+    mouseout: resetHighlight
+  });
+        onEachFeature(feature, layer, currentYear, currentLv) } // Se agrega el año seleccionado como argumento
+    });
+                  // Modifica la llamada a info.update para usar las propiedades correctas
+                  $.getJSON("R/data/g_data.geojson", function(data) { // función de llamada  
+
+              todas.addData(data);   
+
+              info.update({
+                nombre: data.features[9].properties.d_muni_ine,
+                dividendo: data.features[9].properties.c_2022,
+                divisor: data.features[9].properties.h_2022
+              }, currentYear,currentLv, currentVar); // Se agrega el año seleccionado como argumento
+                          
+              });
+
+         // se define la variable que contiene un grupo de capas      
+         var myData =  L.layerGroup([]); // variable con grupo de capas vacío
+            myData.addLayer(todas); // se añade la capa todas previamente declarada y rellenada
+            myData.addTo(map); // se añade el grupo de capas al mapa
+
+
+
+// Event listener para los botones de ratio
+var ratioButtons = document.getElementsByName("var");
+for (var i = 0; i < ratioButtons.length; i++) {
+  ratioButtons[i].addEventListener('click', function(event) {
+    currentVar = event.target.value;
+    
+    updateData();
+  });
+}
+
+// Event listener para los botones de ganado
+var lvButtons = document.getElementsByName("lv");
+for (var i = 0; i < lvButtons.length; i++) {
+  lvButtons[i].addEventListener('click', function(event) {
+    currentLv = event.target.value;
+    
+    updateData();
+  });
+}
+
+// Event listener para los botones de año
+for (let i = 2013; i < 2023; i++) {
+  let yearButton = document.getElementById(i.toString());
+  yearButton.addEventListener('click', function(event) {
+    currentYear = event.target.value;
+   
+    updateData();
+  });
+}
+
+
+function updateData() {
+  myData.clearLayers();
+  map.removeLayer(myData);
+  console.log(currentLv)
+  console.log(currentVar)
+  console.log(currentYear)
+
+  let dividendo, divisor;
+  const feature = { properties: {} };
+
+  if (currentVar === "n") {
+    dividendo = feature.properties[`${currentLv}_${currentYear}`];
+    divisor = 1;
+  } else if (currentVar === "d") {
+    dividendo = feature.properties[`${currentLv}_${currentYear}`];
+    divisor = feature.properties.sup_of_km2;
+  } else if (currentVar === "r") {
+    dividendo = feature.properties[`${currentLv}_${currentYear}`];
+    divisor = feature.properties[`h_${currentYear}`];
+  }
+
+
+
+  var todas;
+  todas = L.geoJSON(null, {
+    style: function(feature) {
+      return getStyle1(feature, dividendo / divisor, currentLv );
+    },
+    onEachFeature: function(feature, layer) { 
+      layer.on({
+            mouseover: highlightFeature,
+            mouseout: resetHighlight
+      });
+      onEachFeature(feature, layer, currentYear, currentLv) } 
+  });
+ 
+  $.getJSON("R/data/g_data.geojson", function(data) { // función de llamada  
+    todas.addData(data);   
+    
+    // Obtiene las propiedades del municipio seleccionado
+    var selectedMunicipio = data.features[9].properties;
+
+    // Actualiza la información en la página
+    info.update({
+      nombre: selectedMunicipio.d_muni_ine,
+      dividendo: dividendo,
+      divisor: divisor
+    }, 
+    currentYear, 
+    currentLv,
+    currentVar);
+    // Update the legend
+    updateLegend(currentLv);
+  });
+
+  myData.addLayer(todas);
+  myData.addTo(map);
+}
+
+// Llamada inicial para cargar los datos con los valores por defecto
+updateData();
+
+// Initial creation of the legend
+var legend = L.control({position: 'bottomright'});
+
+legend.onAdd = function (map) {
+
+    var div = L.DomUtil.create('div', 'info legend'),
+        grades,
+        labels = [];
+
+  if (currentLv === "p") {
+    grades = [0, 0.5, 1, 5, 10, 20, 50, 80];
+  } else if (currentLv === "o") {
+    grades = [0, 0.5, 1, 5, 10, 20, 50];
+  } else if (currentLv === "b") {
+    grades = [0, 0.5, 1, 2, 5, 10, 20];
+  }
+
+    // loop through our density intervals and generate a label with a colored square for each interval
+    for (var i = 0; i < grades.length; i++) {
+        div.innerHTML +=
+            '<i style="background:' + getColor1(grades[i] + 1, currentLv) + '"></i> ' +
+            grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
+    }
+
+    return div;
+};
+
+function updateLegend(currentLv) {
+  // Remove the existing legend
+  legend.remove();
+  
+  // Create a new legend
+  var newLegend = L.control({position: 'bottomright'});
+
+  newLegend.onAdd = function (map) {
+
+      var div = L.DomUtil.create('div', 'info legend'),
+          grades,
+          labels = [];
+
+  if (currentLv === "p") {
+    grades = [0, 0.5, 1, 5, 10, 20, 50, 80];
+  } else if (currentLv === "o") {
+    grades = [0, 0.5, 1, 5, 10, 20, 50];
+  } else if (currentLv === "b") {
+    grades = [0, 0.5, 1, 2, 5, 10, 20];
+  }
+
+      // loop through our density intervals and generate a label with a colored square for each interval
+      for (var i = 0; i < grades.length; i++) {
+          div.innerHTML +=
+              '<i style="background:' + getColor1(grades[i] + 1, currentLv) + '"></i> ' +
+              grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
+      }
+
+      return div;
+  };
+
+  // Add the new legend to the map
+  newLegend.addTo(map);
+  
+  // Update the reference to the legend variable
+  legend = newLegend;
+}
+
+
+
+legend.addTo(map);
+
+// Update the legend when currentLv changes
+updateLegend(currentLv);
+
+
+</script>
+    </body>
+</html>
